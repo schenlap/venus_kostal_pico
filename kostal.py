@@ -161,48 +161,52 @@ def kostal_htmltable_to_json( htmltext ) :
 	#print("List: " + htmltext.split())
 	
 	data = {}
-	linenumber = 1
-	for line in htmltext.split("\n"):
-		if (linenumber == 46):
-			data['PT'] = int((re.findall('\d+', line))[0]);
-		if (linenumber == 128):
-			data['PA'] = int((re.findall('\d+', line))[0]);
-		if (linenumber == 114):
-			data['VA'] = int((re.findall('\d+', line))[0]);
-		if (linenumber == 167):
-			data['PB'] = int((re.findall('\d+', line))[0]);
-		if (linenumber == 153):
-			print (re.findall('\d+', line))
-			data['VB'] = int((re.findall('\d+', line))[0]);
-		if (linenumber == 208):
-			data['PC'] = int((re.findall('\d+', line))[0]);
-		if (linenumber == 193):
-			data['VC'] = int((re.findall('\d+', line))[0]);
-		if (linenumber == 51):
-			data['EFAT'] = int((re.findall('\d+', line))[0]);
-		if (linenumber == 74):
-			if line.endswith('</td>'):
-				line = line[:-5]
-			data['STATUS'] = line
-		linenumber = linenumber + 1
-	#data = {}
-	#data['PT'] = int(kostal_get_table_data_float(tree,'.//table[2]//tr[4]/td[3]'));
+	try:
+		linenumber = 1
+		for line in htmltext.split("\n"):
+			if (linenumber == 46):
+				data['PT'] = int((re.findall('\d+', line))[0]);
+			if (linenumber == 128):
+				data['PA'] = int((re.findall('\d+', line))[0]);
+			if (linenumber == 114):
+				data['VA'] = int((re.findall('\d+', line))[0]);
+			if (linenumber == 167):
+				data['PB'] = int((re.findall('\d+', line))[0]);
+			if (linenumber == 153):
+				print (re.findall('\d+', line))
+				data['VB'] = int((re.findall('\d+', line))[0]);
+			if (linenumber == 208):
+				data['PC'] = int((re.findall('\d+', line))[0]);
+			if (linenumber == 193):
+				data['VC'] = int((re.findall('\d+', line))[0]);
+			if (linenumber == 51):
+				data['EFAT'] = int((re.findall('\d+', line))[0]);
+			if (linenumber == 74):
+				if line.endswith('</td>'):
+					line = line[:-5]
+				data['STATUS'] = line
+			linenumber = linenumber + 1
 
-	#data['PA'] = kostal_get_table_data_float(tree,'.//table[2]//tr[16]/td[6]');
-	#data['VA'] = kostal_get_table_data_float(tree,'.//table[2]//tr[14]/td[6]');
-	data['IA'] = data['PA'] / data['VA']
-
-	#data['PB'] = kostal_get_table_data_float(tree,'.//table[2]//tr[21]/td[6]');
-	#data['VB'] = kostal_get_table_data_float(tree,'.//table[2]//tr[19]/td[6]');
-	data['IB'] = data['PB'] / data['VB']
-
-	#data['PC'] = kostal_get_table_data_float(tree,'.//table[2]//tr[26]/td[6]');
-	#data['VC'] = kostal_get_table_data_float(tree,'.//table[2]//tr[24]/td[6]');
-	data['IC'] = data['PC'] / data['VC']
-
-	#data['EFAT'] = kostal_get_table_data_float(tree,'.//table[2]//tr[4]/td[6]');
-	#data['STATUS'] = kostal_get_table_data(tree,'.//table[2]//tr[8]/td[3]');
-	data['IN0'] = data['IA'] + data['IB'] + data['IC']
+		data['IA'] = data['PA'] / data['VA']
+		data['IB'] = data['PB'] / data['VB']
+		data['IC'] = data['PC'] / data['VC']
+		data['IN0'] = data['IA'] + data['IB'] + data['IC']
+	except:
+		print('parsing error, using default values')
+		Kostal.stats.parse_error += 1
+		data['PT'] = 0
+		data['PA'] = 0
+		data['PB'] = 0
+		data['PC'] = 0
+		data['VA'] = 230
+		data['VB'] = 230
+		data['VC'] = 230
+		data['EFAT'] = 1
+		data['STATUS'] = 'Parse Error'
+		data['IA'] = 0
+		data['IB'] = 0
+		data['IC'] = 0
+		data['IN0'] = 0
 
 	json_data = json.dumps(data)
 	print(json_data)
