@@ -187,10 +187,10 @@ def kostal_htmltable_to_json( htmltext ) :
 				data['STATUS'] = line
 			linenumber = linenumber + 1
 
-		data['IA'] = data['PA'] / data['VA']
-		data['IB'] = data['PB'] / data['VB']
-		data['IC'] = data['PC'] / data['VC']
-		data['IN0'] = data['IA'] + data['IB'] + data['IC']
+		data['IA'] = round(data['PA'] / float(data['VA']),1)
+		data['IB'] = round(data['PB'] / float(data['VB']),1)
+		data['IC'] = round(data['PC'] / float(data['VC']),1)
+		data['IN0'] =round( data['IA'] + data['IB'] + data['IC'], 1)
 	except:
 		print('parsing error, using default values')
 		Kostal.stats.parse_error += 1
