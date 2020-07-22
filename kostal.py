@@ -46,7 +46,7 @@ class Kostal:
 	password = []
 	stats = DevStatistics
 	intervall = []
-	max_retries = 60
+	max_retries = 10
 
 global demo
 demo = 0
@@ -229,7 +229,7 @@ def kostal_read_data() :
 	err = 0
 	if demo == 0:
 		try:
-			response = requests.get( Kostal.ip, verify=False, auth=HTTPBasicAuth(Kostal.user, Kostal.password))
+			response = requests.get( Kostal.ip, verify=False, auth=HTTPBasicAuth(Kostal.user, Kostal.password), timeout=10)
 			# For successful API call, response code will be 200 (OK)
 			if(response.ok):
 				#print("code:"+ str(response.status_code))
