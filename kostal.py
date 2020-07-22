@@ -54,6 +54,8 @@ global kostal_is_init
 kostal_is_init = 0
 global dev_state
 dev_state = DevState.WaitForDevice
+global energy
+energy = 0
 
 def push_statistics() :
 	global kostal
@@ -111,11 +113,7 @@ def kostal_parse_data( data ) :
 		kostal.set('/Ac/L3/Voltage', (data['VC']))
 		kostal.set('/Ac/L3/Power', (data['PC']))
 
-		#kostal.set('/Ac/L1/Energy/Forward', (data['EFAA']/1000))
-		#kostal.set('/Ac/L2/Energy/Forward', (data['EFAB']/1000))
-		#kostal.set('/Ac/L3/Energy/Forward', (data['EFAC']/1000))
-
-		kostal.set('/Ac/Energy/Forward', (data['EFAT']/1000))
+		kostal.set('/Ac/Energy/Forward', (data['EFAT']))
 
 		powertotal = data['PT']
 		print("++++++++++")
@@ -137,6 +135,7 @@ def kostal_get_table_data(tree, xstring):
 	return s[0]
 
 def kostal_htmltable_to_json( htmltext ) :
+	global energy
 	htmltext = htmltext.encode('ascii','ignore')
 	#tree = lxml.html.document_fromstring(htmltext)
 	#print(tree)
@@ -181,6 +180,7 @@ def kostal_htmltable_to_json( htmltext ) :
 				data['VC'] = int((re.findall('\d+', line))[0]);
 			if (linenumber == 51):
 				data['EFAT'] = int((re.findall('\d+', line))[0]);
+				energy = data['EFAT']
 			if (linenumber == 74):
 				if line.endswith('</td>'):
 					line = line[:-5]
@@ -201,7 +201,7 @@ def kostal_htmltable_to_json( htmltext ) :
 		data['VA'] = 230
 		data['VB'] = 230
 		data['VC'] = 230
-		data['EFAT'] = 1
+		data['EFAT'] = energy
 		data['STATUS'] = 'Parse Error'
 		data['IA'] = 0
 		data['IB'] = 0
