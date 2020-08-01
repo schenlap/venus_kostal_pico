@@ -46,6 +46,7 @@ class Kostal:
 	password = []
 	stats = DevStatistics
 	intervall = []
+	version = 1
 	max_retries = 10
 
 global demo
@@ -72,11 +73,10 @@ def read_settings() :
 	parser.read('kostal.ini')
 
 	Kostal.ip = parser.get('KOSTAL', 'ip')
-	#Kostal.url = parser.get('KOSTAL', 'url')
-	#Kostal.statusurl = parser.get('KOSTAL', 'statusurl')
+	Kostal.intervall = float(parser.get('KOSTAL', 'intervall'))
 	Kostal.user = parser.get('KOSTAL', 'username')
 	Kostal.password = parser.get('KOSTAL', 'password')
-	Kostal.intervall = float(parser.get('KOSTAL', 'intervall'))
+	Kostal.version = parser.get('KOSTAL', 'version')
 
 def kostal_read_example(filename) :
 	with open(filename) as f:
@@ -134,6 +134,24 @@ def kostal_get_table_data(tree, xstring):
 	s = s.split('\n')
 	return s[0]
 
+def kostal_read_power_value(string):
+	val = 1
+	multi = 1
+	valstring = re.sub(r'<.+?>','', string)
+	#print("Short: " + valstring)
+	if valstring.endswith('kW'):
+		multi = 1000
+	elif valstring.endswith('W'):
+		multi = 1
+	else:
+		print('Did not find value')
+
+	valstring = re.sub('[a-zA-Z.]', '', valstring)
+	valstring = valstring.replace(',','.')
+	print('short: ' + valstring)
+	val = float(valstring)
+	return val * multi
+
 def kostal_htmltable_to_json( htmltext ) :
 	global energy
 	htmltext = htmltext.encode('ascii','ignore')
@@ -158,41 +176,56 @@ def kostal_htmltable_to_json( htmltext ) :
 	#res = [float(i) for i in htmltext.split() if i.isdigit()]
 	#print(htmltext.split())
 	#print("List: " + htmltext.split())
-	
+
 	data = {}
 	try:
 		linenumber = 1
 		for line in htmltext.split("\n"):
-			if (linenumber == 46):
-				data['PT'] = int((re.findall('\d+', line))[0]);
-			if (linenumber == 128):
-				data['PA'] = int((re.findall('\d+', line))[0]);
-			if (linenumber == 114):
-				data['VA'] = int((re.findall('\d+', line))[0]);
-			if (linenumber == 167):
-				data['PB'] = int((re.findall('\d+', line))[0]);
-			if (linenumber == 153):
-				print (re.findall('\d+', line))
-				data['VB'] = int((re.findall('\d+', line))[0]);
-			if (linenumber == 208):
-				data['PC'] = int((re.findall('\d+', line))[0]);
-			if (linenumber == 193):
-				data['VC'] = int((re.findall('\d+', line))[0]);
-			if (linenumber == 51):
-				data['EFAT'] = int((re.findall('\d+', line))[0]);
-				energy = data['EFAT']
-			if (linenumber == 74):
-				if line.endswith('</td>'):
-					line = line[:-5]
-				data['STATUS'] = line
+			if Kostal.version == 1:
+				if (linenumber == 46):
+					data['PT'] = int((re.findall('\d+', line))[0]);
+				if (linenumber == 128):
+					data['PA'] = int((re.findall('\d+', line))[0]);
+				if (linenumber == 114):
+					data['VA'] = int((re.findall('\d+', line))[0]);
+				if (linenumber == 167):
+					data['PB'] = int((re.findall('\d+', line))[0]);
+				if (linenumber == 153):
+					print (re.findall('\d+', line))
+					data['VB'] = int((re.findall('\d+', line))[0]);
+				if (linenumber == 208):
+					data['PC'] = int((re.findall('\d+', line))[0]);
+				if (linenumber == 193):
+					data['VC'] = int((re.findall('\d+', line))[0]);
+				if (linenumber == 51):
+					data['EFAT'] = int((re.findall('\d+', line))[0]);
+					energy = data['EFAT']
+				if (linenumber == 74):
+					if line.endswith('</td>'):
+						line = line[:-5]
+					data['STATUS'] = line
+			else: # version 3 guest access
+				if (linenumber == 546):
+					data['PT'] = kostal_read_power_value(line)
 			linenumber = linenumber + 1
+
+		if Kostal.version != 1:
+			data['PA'] = round(data['PT'] / 3, 1)
+			data['PB'] = round(data['PT'] / 3, 1)
+			data['PC'] = round(data['PT'] / 3, 1)
+			data['VA'] = 230
+			data['VB'] = 230
+			data['VC'] = 230
+			data['EFAT'] = 0
+			data['STATUS'] = 'Unknown'
 
 		data['IA'] = round(data['PA'] / float(data['VA']),1)
 		data['IB'] = round(data['PB'] / float(data['VB']),1)
 		data['IC'] = round(data['PC'] / float(data['VC']),1)
 		data['IN0'] =round( data['IA'] + data['IB'] + data['IC'], 1)
-	except:
-		print('parsing error, using default values')
+	except Exception, e:
+		print str(e)
+		print('parsing error, using default values for version' + str(Kostal.version))
 		Kostal.stats.parse_error += 1
 		data['PT'] = 0
 		data['PA'] = 0
@@ -229,7 +262,11 @@ def kostal_read_data() :
 	err = 0
 	if demo == 0:
 		try:
-			response = requests.get( Kostal.ip, verify=False, auth=HTTPBasicAuth(Kostal.user, Kostal.password), timeout=10)
+			if (Kostal.user != ""):
+				response = requests.get( Kostal.ip, verify=False, auth=HTTPBasicAuth(Kostal.user, Kostal.password), timeout=10)
+			else:
+				print('requested no login')
+				response = requests.get( Kostal.ip, verify=False, timeout=10)
 			# For successful API call, response code will be 200 (OK)
 			if(response.ok):
 				#print("code:"+ str(response.status_code))
@@ -243,6 +280,9 @@ def kostal_read_data() :
 				jsonstr = kostal_htmltable_to_json(response.text) # not text
 				kostal_data_read_cb( jsonstr = jsonstr )
 				return 0
+			else:
+				print('Could not read page, error ' + str(response.status_code))
+				return 1
 		except (requests.exceptions.HTTPError, requests.exceptions.RequestException):
 			print('Error reading from ' + Kostal.ip)
 			Kostal.stats.connection_ko += 1
