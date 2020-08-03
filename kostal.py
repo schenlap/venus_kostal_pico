@@ -181,43 +181,29 @@ def kostal_htmltable_to_json( htmltext ) :
 	try:
 		linenumber = 1
 		for line in htmltext.split("\n"):
-			if Kostal.version == 1:
-				if (linenumber == 46):
-					data['PT'] = int((re.findall('\d+', line))[0]);
-				if (linenumber == 128):
-					data['PA'] = int((re.findall('\d+', line))[0]);
-				if (linenumber == 114):
-					data['VA'] = int((re.findall('\d+', line))[0]);
-				if (linenumber == 167):
-					data['PB'] = int((re.findall('\d+', line))[0]);
-				if (linenumber == 153):
-					print (re.findall('\d+', line))
-					data['VB'] = int((re.findall('\d+', line))[0]);
-				if (linenumber == 208):
-					data['PC'] = int((re.findall('\d+', line))[0]);
-				if (linenumber == 193):
-					data['VC'] = int((re.findall('\d+', line))[0]);
-				if (linenumber == 51):
-					data['EFAT'] = int((re.findall('\d+', line))[0]);
-					energy = data['EFAT']
-				if (linenumber == 74):
-					if line.endswith('</td>'):
-						line = line[:-5]
-					data['STATUS'] = line
-			else: # version 3 guest access
-				if (linenumber == 546):
-					data['PT'] = kostal_read_power_value(line)
+			if (linenumber == 46):
+				data['PT'] = int((re.findall('\d+', line))[0]);
+			if (linenumber == 128):
+				data['PA'] = int((re.findall('\d+', line))[0]);
+			if (linenumber == 114):
+				data['VA'] = int((re.findall('\d+', line))[0]);
+			if (linenumber == 167):
+				data['PB'] = int((re.findall('\d+', line))[0]);
+			if (linenumber == 153):
+				print (re.findall('\d+', line))
+				data['VB'] = int((re.findall('\d+', line))[0]);
+			if (linenumber == 208):
+				data['PC'] = int((re.findall('\d+', line))[0]);
+			if (linenumber == 193):
+				data['VC'] = int((re.findall('\d+', line))[0]);
+			if (linenumber == 51):
+				data['EFAT'] = int((re.findall('\d+', line))[0]);
+				energy = data['EFAT']
+			if (linenumber == 74):
+				if line.endswith('</td>'):
+					line = line[:-5]
+				data['STATUS'] = line
 			linenumber = linenumber + 1
-
-		if Kostal.version != 1:
-			data['PA'] = round(data['PT'] / 3, 1)
-			data['PB'] = round(data['PT'] / 3, 1)
-			data['PC'] = round(data['PT'] / 3, 1)
-			data['VA'] = 230
-			data['VB'] = 230
-			data['VC'] = 230
-			data['EFAT'] = 0
-			data['STATUS'] = 'Unknown'
 
 		data['IA'] = round(data['PA'] / float(data['VA']),1)
 		data['IB'] = round(data['PB'] / float(data['VB']),1)
@@ -243,6 +229,25 @@ def kostal_htmltable_to_json( htmltext ) :
 
 	json_data = json.dumps(data)
 	print(json_data)
+	return data
+
+def kostal_v3_to_v1_json(js):
+	data = {}
+	data['PT'] = round( float(js['dxsEntries'][0]['value']), 1)
+	data['VA'] = round( float(js['dxsEntries'][1]['value']), 1)
+	data['PA'] = round( float(js['dxsEntries'][2]['value']), 1)
+	data['VB'] = round( float(js['dxsEntries'][3]['value']), 1)
+	data['PB'] = round( float(js['dxsEntries'][4]['value']), 1)
+	data['VC'] = round( float(js['dxsEntries'][5]['value']), 1)
+	data['PC'] = round( float(js['dxsEntries'][6]['value']), 1)
+	data['EFAT'] = round( float(js['dxsEntries'][7]['value']), 3)
+	data['STATUS'] = js['dxsEntries'][8]['value']
+
+	data['IA'] = round(data['PA'] / float(data['VA']),1)
+	data['IB'] = round(data['PB'] / float(data['VB']),1)
+	data['IC'] = round(data['PC'] / float(data['VC']),1)
+	data['IN0'] = 0
+	print data
 	return data
 
 def kostal_data_read_cb( jsonstr ) :
@@ -277,8 +282,12 @@ def kostal_read_data() :
 				#print("******************")
 				Kostal.stats.connection_ok += 1
 				Kostal.stats.last_connection_errors = 0
-				jsonstr = kostal_htmltable_to_json(response.text) # not text
-				kostal_data_read_cb( jsonstr = jsonstr )
+				if Kostal.version == 1:
+					jsonstr = kostal_htmltable_to_json(response.text)
+					kostal_data_read_cb( jsonstr = jsonstr )
+				else:
+					jsonstr = kostal_v3_to_v1_json(response.json())
+					kostal_data_read_cb( jsonstr = jsonstr )
 				return 0
 			else:
 				print('Could not read page, error ' + str(response.status_code))
