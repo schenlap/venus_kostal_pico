@@ -271,7 +271,10 @@ def kostal_read_data() :
 				response = requests.get( Kostal.ip, verify=False, auth=HTTPBasicAuth(Kostal.user, Kostal.password), timeout=10)
 			else:
 				print('requested no login')
-				response = requests.get( Kostal.ip, verify=False, timeout=10)
+				if Kostal.version == 1:
+					response = requests.get( Kostal.ip, verify=False, timeout=10)
+				else:
+					response = requests.get( Kostal.ip +  '/api/dxs.json?dxsEntries=67109120&dxsEntries=67109378&dxsEntries=67109379&dxsEntries=67109634&dxsEntries=67109635&dxsEntries=67109890&dxsEntries=67109891&dxsEntries=251658753&dxsEntries=16780032', verify=False, timeout=10)
 			# For successful API call, response code will be 200 (OK)
 			if(response.ok):
 				#print("code:"+ str(response.status_code))
