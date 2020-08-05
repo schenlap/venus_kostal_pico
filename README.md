@@ -47,6 +47,9 @@ and copy all files
 scp venus_kostal_pico/* root@venusip:/data/venus_kostal_pico/
 ```
 
+## VELib pyhton
+VElib is necessary. Copy the wohle velib directory somewhere from venus into the directory of venus_kostal_pico.
+
 # Test
 You can test you script with /data/rc.local.  You should now see your inverter on venus display. To get same debug output you can start ```kosatal.py``` from the console. It should look something like this:
 ```
