@@ -5,7 +5,28 @@ The plugin generates a view of the current PV power on Venus. The inverter value
 git clone https://github.com/schenlap/venus_kostal_pico.git on your local computer (git is not installed on venus)
 
 # Configure
-Edit kostal.ini and add your credentials
+
+## Kostal version 1 devices
+Edit kostal.ini and add your credentials.
+```
+[KOSTAL]
+ip = http://10.0.0.50 # yout ip adress
+username = pvserver
+password = xxxx
+intervall = 10 # seconds
+version = 1
+```
+## Kostal version 3 devices
+For version 3 devices there are no login credentials necessary, leave them blank. You can test if yoh have a version 3 device if you enter ```http:<IP>/api/dxs.json?dxsEntries=67109120``` in the browser. If you don't get an error you have a version 3 device.
+```
+[KOSTAL]
+ip = http://10.0.0.50 # yout ip adress
+username =
+password =
+intervall = 10 # seconds
+version = 3
+```
+       
 
 # Get root access
 A step by step guide for the root access is available at https://www.victronenergy.com/live/ccgx:root_access. This is necessary for venus_kostal_pico.
