@@ -48,7 +48,7 @@ scp venus_kostal_pico/* root@venusip:/data/venus_kostal_pico/
 ```
 
 ## VELib pyhton
-VElib is necessary. Link the whole velib_python directory somewhere from venus into the directory of venus_kostal_pico.
+VElib is necessary. Link the whole velib_python directory somewhere from venus into the directory of venus_kostal_pico or clone from https://github.com/victronenergy/velib_python.
 ```
 root@venus_pi2:/data/venus_kostal_pico# ln -s /opt/victronenergy/dbus-pump/ext/velib_python ./
 ```
