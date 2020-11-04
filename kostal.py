@@ -48,6 +48,7 @@ class Kostal:
 	intervall = []
 	version = 1
 	max_retries = 10
+	inverter_name = 'Kostal pico 5.5'
 
 global demo
 demo = 0
@@ -77,6 +78,12 @@ def read_settings() :
 	Kostal.user = parser.get('KOSTAL', 'username')
 	Kostal.password = parser.get('KOSTAL', 'password')
 	Kostal.version = parser.get('KOSTAL', 'version')
+
+	if parser.has_option('KOSTAL', 'max_retries'):
+		Kostal.max_retries = parser.get('KOSTAL', 'max_retries')
+
+	if parser.has_option('KOSTAL', 'inverter_name'):
+		Kostal.inverter_name = parser.get('KOSTAL', 'inverter_name')
 
 def kostal_read_example(filename) :
 	with open(filename) as f:
@@ -242,13 +249,24 @@ def kostal_v3_to_v1_json(js):
 	data['PC'] = round( float(js['dxsEntries'][6]['value']), 1)
 	data['EFAT'] = round( float(js['dxsEntries'][7]['value']), 3)
 	data['STATUS'] = js['dxsEntries'][8]['value']
+	data['IA'] = 0.0
+	data['IB'] = 0.0
+	data['IC'] = 0.0
 
-	data['IA'] = round(data['PA'] / float(data['VA']),1)
-	data['IB'] = round(data['PB'] / float(data['VB']),1)
-	data['IC'] = round(data['PC'] / float(data['VC']),1)
+	if 0 != data['VA']:
+		data['IA'] = round(data['PA'] / data['VA'], 1)
+
+	if 0 != data['VB']:		
+		data['IB'] = round(data['PB'] / data['VB'], 1)
+
+	if 0 != data['VC']:
+		data['IC'] = round(data['PC'] / data['VC'], 1)
+
 	data['IN0'] = 0
+	
 	print data
 	return data
+
 
 def kostal_data_read_cb( jsonstr ) :
 	kostal_parse_data ( jsonstr )
@@ -257,7 +275,7 @@ def kostal_data_read_cb( jsonstr ) :
 def kostal_status_read_cb( jsonstr, init) :
 	global kostal
 	if init:
-		kostal = KostalInverter('kostal_tcp_50','tcp:' + Kostal.ip, 50,'0',  'Kostal pico 5.5', '0.0','0.1')
+		kostal = KostalInverter('kostal_tcp_50','tcp:' + Kostal.ip, 50,'0',  Kostal.inverter_name, '0.0','0.1')
 		kostal.set('/Mgmt/intervall', Kostal.intervall, 1)
 	return
 
@@ -330,6 +348,18 @@ def kostal_update_cyclic(run_event) :
 			Kostal.stats.last_connection_errors = 0
 			Kostal.stats.reconnect += 1
 			kostal.set('/Connected', 0)
+			kostal.set('/Ac/L1/Current', None)
+			kostal.set('/Ac/L2/Current', None)
+			kostal.set('/Ac/L3/Current', None)
+			kostal.set('/Ac/L1/Power', None)
+			kostal.set('/Ac/L2/Power', None)
+			kostal.set('/Ac/L3/Power', None)
+			kostal.set('/Ac/L1/Voltage', None)
+			kostal.set('/Ac/L2/Voltage', None)
+			kostal.set('/Ac/L3/Voltage', None)
+			kostal.set('/Ac/Power', None)
+			kostal.set('/Ac/Current', None)
+			kostal.set('/Ac/Voltage', None)
 
 		if dev_state == DevState.WaitForDevice:
 			if kostal_read_status(init=1) == 0:
