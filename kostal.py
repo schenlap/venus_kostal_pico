@@ -48,7 +48,7 @@ class Kostal:
 	intervall = []
 	version = 1
 	max_retries = 10
-	inverter_name = 'Kostal pico 5.5'
+	inverter_name = 'Kostal_pico5_5'
 
 global demo
 demo = 0
@@ -222,7 +222,7 @@ def kostal_htmltable_to_json( htmltext ) :
 		data['IN0'] =round( data['IA'] + data['IB'] + data['IC'], 1)
 	except Exception, e:
 		print str(e)
-		print('parsing error, using default values for version' + str(Kostal.version))
+		print('parsing error, using default values for version ' + str(Kostal.version) + ' at ' + str(linenumber))
 		Kostal.stats.parse_error += 1
 		data['PT'] = 0
 		data['PA'] = 0
@@ -279,7 +279,7 @@ def kostal_data_read_cb( jsonstr ) :
 def kostal_status_read_cb( jsonstr, init) :
 	global kostal
 	if init:
-		kostal = KostalInverter('kostal_tcp_50','tcp:' + Kostal.ip, 50,'0',  Kostal.inverter_name, '0.0','0.1')
+		kostal = KostalInverter(Kostal.inverter_name,'tcp:' + Kostal.ip, 50,'0',  Kostal.inverter_name, '0.0','0.1')
 		kostal.set('/Mgmt/intervall', Kostal.intervall, 1)
 	return
 
