@@ -81,7 +81,7 @@ def read_settings() :
 	Kostal.intervall = float(parser.get('KOSTAL', 'intervall'))
 	Kostal.user = parser.get('KOSTAL', 'username')
 	Kostal.password = parser.get('KOSTAL', 'password')
-	Kostal.version = parser.get('KOSTAL', 'version')
+	Kostal.version = int(parser.get('KOSTAL', 'version'))
 
 	if parser.has_option('KOSTAL', 'max_retries'):
 		Kostal.max_retries = parser.get('KOSTAL', 'max_retries')
