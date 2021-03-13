@@ -70,7 +70,11 @@ def push_statistics() :
 
 def read_settings() :
 	parser = SafeConfigParser()
-	parser.read('kostal.ini')
+	cfgname = 'kostal.ini'
+	if len(sys.argv) > 1:
+		cfgname = str(sys.argv[1])
+	print 'Using config: ' + cfgname
+	parser.read(cfgname)
 
 	Kostal.ip = parser.get('KOSTAL', 'ip')
 	Kostal.intervall = float(parser.get('KOSTAL', 'intervall'))
