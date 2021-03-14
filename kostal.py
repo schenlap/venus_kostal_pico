@@ -47,6 +47,7 @@ class Kostal:
 	stats = DevStatistics
 	intervall = []
 	version = 1
+	instance = 50
 	max_retries = 10
 	inverter_name = 'Kostal_pico5_5'
 
@@ -88,6 +89,9 @@ def read_settings() :
 
 	if parser.has_option('KOSTAL', 'inverter_name'):
 		Kostal.inverter_name = parser.get('KOSTAL', 'inverter_name')
+
+	if parser.has_option('KOSTAL', 'instance'):
+		Kostal.instance = int(parser.get('KOSTAL', 'instance'))
 
 def kostal_read_example(filename) :
 	with open(filename) as f:
@@ -279,7 +283,7 @@ def kostal_data_read_cb( jsonstr ) :
 def kostal_status_read_cb( jsonstr, init) :
 	global kostal
 	if init:
-		kostal = KostalInverter(Kostal.inverter_name,'tcp:' + Kostal.ip, 50,'0',  Kostal.inverter_name, '0.0','0.1')
+		kostal = KostalInverter(Kostal.inverter_name,'tcp:' + Kostal.ip, Kostal.instance,'0',  Kostal.inverter_name, '0.0','0.1')
 		kostal.set('/Mgmt/intervall', Kostal.intervall, 1)
 	return
 
