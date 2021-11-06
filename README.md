@@ -16,6 +16,36 @@ password = xxxx
 intervall = 10 # seconds
 version = 1
 ```
+## Kostal version 2 devices
+Version 2 devices respond on ```http://<IP>/measurements.xml``` with a xml page like
+```
+<root>
+<Device Name="PIKO 2.5-1 MP plus" Type="Inverter" Platform="Net16" HmiPlatform="HMI17" NominalPower="2500" UserPowerLimit="nan" CountryPowerLimit="nan" Serial="XXXXXXXXXXXXXXXXXXXX" OEMSerial="YYYYYYYY" BusAddress="1" NetBiosName="INVZZZZZZZZZZZZ" WebPortal="PIKO Solar Portal" ManufacturerURL="kostal-solar-electric.com" IpAddress="192.168.0.1" DateTime="2021-11-06T08:10:32" MilliSeconds="055">
+<Measurements>
+<Measurement Value="229.5" Unit="V" Type="AC_Voltage"/>
+<Measurement Value="6.345" Unit="A" Type="AC_Current"/>
+<Measurement Value="1456.3" Unit="W" Type="AC_Power"/>
+<Measurement Value="0.0" Unit="W" Type="AC_Power_fast"/>
+<Measurement Value="49.982" Unit="Hz" Type="AC_Frequency"/>
+<Measurement Value="78.7" Unit="V" Type="DC_Voltage"/>
+<Measurement Value="0.106" Unit="A" Type="DC_Current"/>
+<Measurement Value="335.0" Unit="V" Type="LINK_Voltage"/>
+<Measurement Unit="W" Type="GridPower"/>
+<Measurement Unit="W" Type="GridConsumedPower"/>
+<Measurement Unit="W" Type="GridInjectedPower"/>
+<Measurement Unit="W" Type="OwnConsumedPower"/>
+<Measurement Value="100.0" Unit="%" Type="Derating"/>
+</Measurements>
+</Device>
+</root>
+```
+Edit kostal.ini and set version 2.
+```
+[KOSTAL]
+ip = http://10.0.0.50 # yout ip adress
+intervall = 10 # seconds
+version = 2
+```
 ## Kostal version 3 devices
 For version 3 devices there are no login credentials necessary, leave them blank. You can test if yoh have a version 3 device if you enter ```http:<IP>/api/dxs.json?dxsEntries=67109120``` in the browser. If you don't get an error you have a version 3 device.
 ```
