@@ -254,6 +254,35 @@ def kostal_htmltable_to_json( htmltext ) :
 	print(json_data)
 	return data
 
+def kostal_v2_to_v1_json(xml):
+	#print("++++")
+	#print(xml)
+	#print("----")
+	el = lxml.etree.XML(xml);
+	print("%%%%")
+	meas = el.findall('.//Measurement[@Type="AC_Power"]')
+	
+	data = {}
+	meas = el.findall('.//Measurement[@Type="AC_Power"]')
+	data['PA'] = round(float(meas[0].attrib.get('Value')), 1)
+	data['PB'] = 0
+	data['PC'] = 0
+	data['PT'] = data['PA']
+	meas = el.findall('.//Measurement[@Type="AC_Voltage"]')
+	data['VA'] = round(float(meas[0].attrib.get('Value')), 1)
+	data['VB'] = 0
+	data['VC'] = 0
+	data['EFAT'] = 0
+	data['STATUS'] = 'Online'
+	meas = el.findall('.//Measurement[@Type="AC_Current"]')
+	data['IA'] = round(float(meas[0].attrib.get('Value')), 1)
+	data['IB'] = 0
+	data['IC'] = 0
+	data['IN0'] = 0
+
+	print(data)
+	return data
+
 def kostal_v3_to_v1_json(js):
 	data = {}
 	data['PT'] = round( float(js['dxsEntries'][0]['value']), 1)
@@ -307,9 +336,15 @@ def kostal_read_data() :
 				print('requested no login')
 				if Kostal.version == 1:
 					response = requests.get( Kostal.ip, verify=False, timeout=10)
-				else:
+				elif Kostal.version == 2:
+					print("version2")
+					response = requests.get( Kostal.ip + '/measurements.xml', verify=False, timeout=10)
+				elif Kostal.version == 3:
 					response = requests.get( Kostal.ip +  '/api/dxs.json?dxsEntries=67109120&dxsEntries=67109378&dxsEntries=67109379&dxsEntries=67109634&dxsEntries=67109635&dxsEntries=67109890&dxsEntries=67109891&dxsEntries=251658753&dxsEntries=16780032', verify=False, timeout=10)
-			# For successful API call, response code will be 200 (OK)
+				# For successful API call, response code will be 200 (OK)
+				else:
+					print("unknown version")
+					return
 			if(response.ok):
 				#print("code:"+ str(response.status_code))
 				#print("******************")
@@ -322,9 +357,15 @@ def kostal_read_data() :
 				if Kostal.version == 1:
 					jsonstr = kostal_htmltable_to_json(response.text)
 					kostal_data_read_cb( jsonstr = jsonstr )
-				else:
+				elif Kostal.version == 2:
+					jsonstr = kostal_v2_to_v1_json(response.text)
+					kostal_data_read_cb( jsonstr = jsonstr )
+					return
+				elif Kostal.version == 3:
 					jsonstr = kostal_v3_to_v1_json(response.json())
 					kostal_data_read_cb( jsonstr = jsonstr )
+				else:
+					print("unknown version")
 				return 0
 			else:
 				print('Could not read page, error ' + str(response.status_code))
