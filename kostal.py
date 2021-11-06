@@ -6,12 +6,20 @@
 import requests
 from requests.auth import HTTPBasicAuth
 import json
-from ConfigParser import SafeConfigParser
+try:
+	from ConfigParser import SafeConfigParser
+except:
+	from configparser import SafeConfigParser
 from kostal_inverter import KostalInverter
 
 from dbus.mainloop.glib import DBusGMainLoop
-import gobject
-from gobject import idle_add
+try:
+	import gobject
+	from gobject import idle_add
+except:
+	from gi.repository import GObject as gobject
+	from gi.repository.GObject import idle_add
+
 import dbus
 import dbus.service
 import inspect
@@ -75,7 +83,7 @@ def read_settings() :
 	cfgname = 'kostal.ini'
 	if len(sys.argv) > 1:
 		cfgname = str(sys.argv[1])
-	print 'Using config: ' + cfgname
+	print('Using config: ' + cfgname)
 	parser.read(cfgname)
 
 	Kostal.ip = parser.get('KOSTAL', 'ip')
@@ -224,8 +232,8 @@ def kostal_htmltable_to_json( htmltext ) :
 		data['IB'] = round(data['PB'] / float(data['VB']),1)
 		data['IC'] = round(data['PC'] / float(data['VC']),1)
 		data['IN0'] =round( data['IA'] + data['IB'] + data['IC'], 1)
-	except Exception, e:
-		print str(e)
+	except Exception as e:
+		print(str(e))
 		print('parsing error, using default values for version ' + str(Kostal.version) + ' at ' + str(linenumber))
 		Kostal.stats.parse_error += 1
 		data['PT'] = 0
@@ -272,7 +280,7 @@ def kostal_v3_to_v1_json(js):
 
 	data['IN0'] = 0
 	
-	print data
+	print(data)
 	return data
 
 

@@ -4,8 +4,12 @@
 #vi: set autoindent noexpandtab tabstop=4 shiftwidth=4
 
 from dbus.mainloop.glib import DBusGMainLoop
-import gobject
-from gobject import idle_add
+try:
+	import gobject
+	from gobject import idle_add
+except:
+	from gi.repository import GObject as gobject
+	from gi.repository.GObject import idle_add
 import dbus
 import dbus.service
 import inspect
