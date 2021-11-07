@@ -258,6 +258,7 @@ def kostal_v2_to_v1_json(xml):
 	#print("++++")
 	#print(xml)
 	#print("----")
+	xml = bytes(bytearray(xml, encoding = 'utf-8'))
 	el = lxml.etree.XML(xml);
 	print("%%%%")
 	meas = el.findall('.//Measurement[@Type="AC_Power"]')
