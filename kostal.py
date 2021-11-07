@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 #vi: set autoindent noexpandtab tabstop=4 shiftwidth=4
@@ -14,11 +14,11 @@ from kostal_inverter import KostalInverter
 
 from dbus.mainloop.glib import DBusGMainLoop
 try:
-	import gobject
+	import gobject # used by victron
 	from gobject import idle_add
 except:
-	from gi.repository import GLib
-	from gi.repository.GLib import idle_add
+	from gi.repository import GObject as gobject
+	from gi.repository.GObject import idle_add
 
 import dbus
 import dbus.service
@@ -461,7 +461,8 @@ try:
 	update_thread = threading.Thread(target=kostal_update_cyclic, args=(run_event,))
 	update_thread.start()
 
-	mainloop = GLib.MainLoop()
+	gobject.threads_init()
+	mainloop = gobject.MainLoop()
 	mainloop.run()
 
 except (KeyboardInterrupt, SystemExit):
