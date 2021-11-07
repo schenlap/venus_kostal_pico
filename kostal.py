@@ -88,9 +88,17 @@ def read_settings() :
 
 	Kostal.ip = parser.get('KOSTAL', 'ip')
 	Kostal.intervall = float(parser.get('KOSTAL', 'intervall'))
-	Kostal.user = parser.get('KOSTAL', 'username')
-	Kostal.password = parser.get('KOSTAL', 'password')
 	Kostal.version = int(parser.get('KOSTAL', 'version'))
+
+	if parser.has_option('KOSTAL', 'username'):
+		Kostal.user = parser.get('KOSTAL', 'username')
+	else:
+		Kostal.user = ""
+
+	if parser.has_option('KOSTAL', 'password'):
+		Kostal.password = parser.get('KOSTAL', 'password')
+	else:
+		Kostal.password = ""
 
 	if parser.has_option('KOSTAL', 'max_retries'):
 		Kostal.max_retries = parser.get('KOSTAL', 'max_retries')
