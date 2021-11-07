@@ -17,8 +17,8 @@ try:
 	import gobject
 	from gobject import idle_add
 except:
-	from gi.repository import GObject as gobject
-	from gi.repository.GObject import idle_add
+	from gi.repository import GLib
+	from gi.repository.GLib import idle_add
 
 import dbus
 import dbus.service
@@ -461,8 +461,7 @@ try:
 	update_thread = threading.Thread(target=kostal_update_cyclic, args=(run_event,))
 	update_thread.start()
 
-	gobject.threads_init()
-	mainloop = gobject.MainLoop()
+	mainloop = GLib.MainLoop()
 	mainloop.run()
 
 except (KeyboardInterrupt, SystemExit):
