@@ -264,19 +264,26 @@ def kostal_v2_to_v1_json(xml):
 	meas = el.findall('.//Measurement[@Type="AC_Power"]')
 	
 	data = {}
-	meas = el.findall('.//Measurement[@Type="AC_Power"]')
-	data['PA'] = round(float(meas[0].attrib.get('Value')), 1)
+	try:
+		meas = el.findall('.//Measurement[@Type="AC_Power"]')
+		data['PA'] = round(float(meas[0].attrib.get('Value')), 1)
+		meas = el.findall('.//Measurement[@Type="AC_Voltage"]')
+		data['VA'] = round(float(meas[0].attrib.get('Value')), 1)
+		meas = el.findall('.//Measurement[@Type="AC_Current"]')
+		data['IA'] = round(float(meas[0].attrib.get('Value')), 1)
+		data['STATUS'] = 'running'
+	except:
+		data['PA'] = 0
+		data['VA'] = 0
+		data['IA'] = 0
+		data['STATUS'] = 'standby'
+
 	data['PB'] = 0
 	data['PC'] = 0
 	data['PT'] = data['PA']
-	meas = el.findall('.//Measurement[@Type="AC_Voltage"]')
-	data['VA'] = round(float(meas[0].attrib.get('Value')), 1)
 	data['VB'] = 0
 	data['VC'] = 0
 	data['EFAT'] = 0
-	data['STATUS'] = 'Online'
-	meas = el.findall('.//Measurement[@Type="AC_Current"]')
-	data['IA'] = round(float(meas[0].attrib.get('Value')), 1)
 	data['IB'] = 0
 	data['IC'] = 0
 	data['IN0'] = 0
