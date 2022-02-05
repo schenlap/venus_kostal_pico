@@ -185,7 +185,7 @@ def kostal_read_power_value(string):
 
 def kostal_htmltable_to_json( htmltext ) :
 	global energy
-	htmltext = htmltext.encode('ascii','ignore')
+	htmltext = htmltext.encode('ascii','ignore').decode('utf-8')
 	#tree = lxml.html.document_fromstring(htmltext)
 	#print(tree)
 
