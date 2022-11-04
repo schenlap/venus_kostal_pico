@@ -56,6 +56,10 @@ password =
 intervall = 10 # seconds
 version = 3
 ```
+
+## Kostal plenticore devices
+For all PIKO IQ and PLENTICORE PLUS inverters see https://github.com/davwil/venus_kostal_plenticore
+You can check it with http://<IP>/api/v1/info/version. My plugin does not support PIKO IQ and PLENTICRE PLUS inverters!
        
 
 # Get root access
