@@ -111,6 +111,8 @@ def read_settings() :
 	
 	if parser.has_option('KOSTAL', 'position'):
 		Kostal.position = int(parser.get('KOSTAL', 'position'))
+	else:
+		Kostal.position = 0
 
 def kostal_read_example(filename) :
 	with open(filename) as f:
