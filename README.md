@@ -10,11 +10,13 @@ git clone https://github.com/schenlap/venus_kostal_pico.git on your local comput
 Edit kostal.ini and add your credentials.
 ```
 [KOSTAL]
-ip = http://10.0.0.50 # yout ip adress
+ip = http://10.0.0.50 # your ip adress
 username = pvserver
 password = xxxx
 intervall = 10 # seconds
 version = 1
+# 0 for AC-IN1, 1 for AC-OUT, 2 FOR AC-IN2
+position = 0
 ```
 ## Kostal version 2 devices
 Version 2 devices respond on ```http://<IP>/measurements.xml``` with a xml page like
@@ -42,19 +44,23 @@ Version 2 devices respond on ```http://<IP>/measurements.xml``` with a xml page 
 Edit kostal.ini and set version 2.
 ```
 [KOSTAL]
-ip = http://10.0.0.50 # yout ip adress
+ip = http://10.0.0.50 # your ip adress
 intervall = 10 # seconds
 version = 2
+# 0 for AC-IN1, 1 for AC-OUT, 2 FOR AC-IN2
+position = 0
 ```
 ## Kostal version 3 devices
 For version 3 devices there are no login credentials necessary, leave them blank. You can test if yoh have a version 3 device if you enter ```http:<IP>/api/dxs.json?dxsEntries=67109120``` in the browser. If you don't get an error you have a version 3 device.
 ```
 [KOSTAL]
-ip = http://10.0.0.50 # yout ip adress
+ip = http://10.0.0.50 # your ip adress
 username =
 password =
 intervall = 10 # seconds
 version = 3
+# 0 for AC-IN1, 1 for AC-OUT, 2 FOR AC-IN2
+position = 0
 ```
 
 ## Kostal plenticore devices
@@ -81,14 +87,14 @@ and copy all files
 scp venus_kostal_pico/* root@venusip:/data/venus_kostal_pico/
 ```
 
-## VELib pyhton
+## VELib python
 VElib is necessary. Link the whole velib_python directory somewhere from venus into the directory of venus_kostal_pico or clone from https://github.com/victronenergy/velib_python.
 ```
 root@venus_pi2:/data/venus_kostal_pico# ln -s /opt/victronenergy/dbus-pump/ext/velib_python ./
 ```
 
 # Test
-You can test you script with /data/rc.local.  You should now see your inverter on venus display. To get same debug output you can start ```kosatal.py``` from the console. It should look something like this:
+You can test you script with /data/rc.local.  You should now see your inverter on venus display. To get same debug output you can start ```kostal.py``` from the console. It should look something like this:
 ```
 $ ./kostal.py 
 Using http://10.0.0.49:90 user: pvserver
