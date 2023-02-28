@@ -455,9 +455,11 @@ print("Using " + Kostal.ip + " user: " + Kostal.user)
 kostal_status_read_cb("", init = 1)
 
 try:
+	import socket
 	run_event = threading.Event()
 	run_event.set()
 
+	socket.setdefaulttimeout(10)
 	update_thread = threading.Thread(target=kostal_update_cyclic, args=(run_event,))
 	update_thread.start()
 
