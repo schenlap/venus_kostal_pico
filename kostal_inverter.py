@@ -27,7 +27,7 @@ from vedbus import VeDbusService
 class KostalInverter :
 	dbusservice = []
 
-	def __init__(self, dev, connection, instance, serial, product, firmwarev, pversion) :
+	def __init__(self, dev, connection, instance, serial, product, firmwarev, pversion, position) :
 		#VERSION = '0.1'
 
 		print(__file__ + " starting up")
@@ -54,7 +54,7 @@ class KostalInverter :
 		self.dbusservice.add_path('/Serial', serial)
 		self.dbusservice.add_path('/Connected', 1, writeable=True)
 		self.dbusservice.add_path('/ErrorCode', '(0) No Error')
-		self.dbusservice.add_path('/Position', 0)
+		self.dbusservice.add_path('/Position', position)
 
 		_kwh = lambda p, v: (str(v) + 'KWh')
 		_a = lambda p, v: (str(v) + 'A')

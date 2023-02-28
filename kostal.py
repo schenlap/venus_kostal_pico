@@ -108,6 +108,11 @@ def read_settings() :
 
 	if parser.has_option('KOSTAL', 'instance'):
 		Kostal.instance = int(parser.get('KOSTAL', 'instance'))
+	
+	if parser.has_option('KOSTAL', 'position'):
+		Kostal.position = int(parser.get('KOSTAL', 'position'))
+	else:
+		Kostal.position = 0
 
 def kostal_read_example(filename) :
 	with open(filename) as f:
@@ -336,7 +341,7 @@ def kostal_data_read_cb( jsonstr ) :
 def kostal_status_read_cb( jsonstr, init) :
 	global kostal
 	if init:
-		kostal = KostalInverter(Kostal.inverter_name,'tcp:' + Kostal.ip, Kostal.instance,'0',  Kostal.inverter_name, '0.0','0.1')
+		kostal = KostalInverter(Kostal.inverter_name,'tcp:' + Kostal.ip, Kostal.instance,'0',  Kostal.inverter_name, '0.0','0.1', Kostal.position)
 		kostal.set('/Mgmt/intervall', Kostal.intervall, 1)
 	return
 
