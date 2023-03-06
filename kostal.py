@@ -366,7 +366,7 @@ def kostal_read_data() :
 				else:
 					print("unknown version")
 					return
-			if(response.ok):
+			if(response.ok and len(response.text)):
 				#print("code:"+ str(response.status_code))
 				#print("******************")
 				#print("headers:"+ str(response.headers))
