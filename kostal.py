@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 #vi: set autoindent noexpandtab tabstop=4 shiftwidth=4
@@ -28,6 +28,7 @@ import os
 import sys
 import threading
 import time
+import traceback
 
 from lxml import html
 import lxml.etree
@@ -334,6 +335,38 @@ def kostal_v3_to_v1_json(js):
 	return data
 
 
+def evcc_to_v1_json(js):
+	power = js['result']['pvPower']
+	print(f"pvpower: {power}")
+
+	data = {}
+	data['PT'] = round(power, 0)
+	data['VA'] = 230
+	data['PA'] = round(power, 0)
+	data['VB'] = 0
+	data['PB'] = 0
+	data['VC'] = 0
+	data['PC'] = 0
+	data['EFAT'] = 0
+	data['STATUS'] = 0
+	data['IA'] = 0.0
+	data['IB'] = 0.0
+	data['IC'] = 0.0
+
+	if 0 != data['VA']:
+		data['IA'] = round(data['PA'] / data['VA'], 1)
+
+	if 0 != data['VB']:
+		data['IB'] = round(data['PB'] / data['VB'], 1)
+
+	if 0 != data['VC']:
+		data['IC'] = round(data['PC'] / data['VC'], 1)
+
+	data['IN0'] = 0
+	
+	print(data)
+	return data
+
 def kostal_data_read_cb( jsonstr ) :
 	kostal_parse_data ( jsonstr )
 	return
@@ -362,9 +395,11 @@ def kostal_read_data() :
 					response = requests.get( Kostal.ip + '/measurements.xml', verify=False, timeout=10)
 				elif Kostal.version == 3:
 					response = requests.get( Kostal.ip +  '/api/dxs.json?dxsEntries=67109120&dxsEntries=67109378&dxsEntries=67109379&dxsEntries=67109634&dxsEntries=67109635&dxsEntries=67109890&dxsEntries=67109891&dxsEntries=251658753&dxsEntries=16780032', verify=False, timeout=10)
-				# For successful API call, response code will be 200 (OK)
+				elif Kostal.version == 80: # evcc
+					response = requests.get( Kostal.ip +  '/api/state', verify=False, timeout=10)
 				else:
 					print("unknown version")
+					quit()
 					return
 			if(response.ok and len(response.text)):
 				#print("code:"+ str(response.status_code))
@@ -385,14 +420,19 @@ def kostal_read_data() :
 				elif Kostal.version == 3:
 					jsonstr = kostal_v3_to_v1_json(response.json())
 					kostal_data_read_cb( jsonstr = jsonstr )
+				elif Kostal.version == 80: # evcc
+					jsonstr = evcc_to_v1_json(response.json())
+					kostal_data_read_cb( jsonstr = jsonstr )
 				else:
 					print("unknown version")
+					quit()
 				return 0
 			else:
 				print('Could not read page, error ' + str(response.status_code))
 				return 1
 		except (requests.exceptions.HTTPError, requests.exceptions.RequestException):
 			print('Error reading from ' + Kostal.ip)
+			traceback.print_exc()
 			Kostal.stats.connection_ko += 1
 			Kostal.stats.last_connection_errors += 1
 			return 1
