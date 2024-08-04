@@ -397,9 +397,9 @@ def kostal_read_data() :
 			Kostal.stats.last_connection_errors += 1
 			return 1
 	else:
-		#data = kostal_read_example("example_kostal_data.json")
-		#Kostal.stats.connection_ok += 1
-		#kostal_data_read_cb(data)
+		data = kostal_v3_to_v1_json(kostal_read_example("example_kostal_data.json"))
+		Kostal.stats.connection_ok += 1
+		kostal_data_read_cb(data)
 		return 0
 	return 0
 
