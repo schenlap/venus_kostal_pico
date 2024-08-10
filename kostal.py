@@ -158,7 +158,7 @@ def kostal_parse_data( data ) :
 		print("POWER Phase B: " + str(data['PB']) + "W")
 		print("POWER Phase C: " + str(data['PC']) + "W")
 		print("POWER Total: " + str(data['PT']) + "W")
-		print("ENERGY Total: " + str(round(data['EFAT'], 3)) + "kWh")
+		print("ENERGY Total: " + str(round(data['EFAT'], 0)) + "kWh")
 		#print("Time: " + str(data['TIME']) + "ms")
 		print("KOSTAL Status: " + str(data['STATUS']))
 
@@ -482,6 +482,7 @@ def kostal_update_cyclic(run_event) :
 			kostal.set('/Ac/Power', None)
 			kostal.set('/Ac/Current', None)
 			kostal.set('/Ac/Voltage', None)
+			kostal.set('/Ac/Energy/Forward', None)
 
 		if dev_state == DevState.WaitForDevice:
 			if kostal_read_status(init=1) == 0:
