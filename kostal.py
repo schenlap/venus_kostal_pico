@@ -158,6 +158,7 @@ def kostal_parse_data( data ) :
 		print("POWER Phase B: " + str(data['PB']) + "W")
 		print("POWER Phase C: " + str(data['PC']) + "W")
 		print("POWER Total: " + str(data['PT']) + "W")
+		print("ENERGY Total: " + str(round(data['EFAT'], 3)) + "kWh")
 		#print("Time: " + str(data['TIME']) + "ms")
 		print("KOSTAL Status: " + str(data['STATUS']))
 
@@ -323,21 +324,24 @@ def kostal_v3_to_v1_json(js):
 	if 0 != data['VA']:
 		data['IA'] = round(data['PA'] / data['VA'], 1)
 
-	if 0 != data['VB']:		
+	if 0 != data['VB']:
 		data['IB'] = round(data['PB'] / data['VB'], 1)
 
 	if 0 != data['VC']:
 		data['IC'] = round(data['PC'] / data['VC'], 1)
 
-	data['IN0'] = 0
-	
+	data['IN0'] = round( data['IA'] + data['IB'] + data['IC'], 1)
+
 	print(data)
 	return data
 
 
 def evcc_to_v1_json(js):
+	global energy
 	power = js['result']['pvPower']
 	print(f"pvpower: {power}")
+
+	energy = energy + power * kostal.get('/Mgmt/intervall') / 3600 / 1000 # kWh
 
 	data = {}
 	data['PT'] = round(power, 0)
@@ -347,9 +351,9 @@ def evcc_to_v1_json(js):
 	data['PB'] = 0
 	data['VC'] = 0
 	data['PC'] = 0
-	data['EFAT'] = 0
+	data['EFAT'] = round(energy, 3)
 	data['STATUS'] = 0
-	data['IA'] = 0.0
+	data['IA'] = 0
 	data['IB'] = 0.0
 	data['IC'] = 0.0
 
@@ -362,8 +366,8 @@ def evcc_to_v1_json(js):
 	if 0 != data['VC']:
 		data['IC'] = round(data['PC'] / data['VC'], 1)
 
-	data['IN0'] = 0
-	
+	data['IN0'] = round( data['IA'] + data['IB'] + data['IC'], 1)
+
 	print(data)
 	return data
 
