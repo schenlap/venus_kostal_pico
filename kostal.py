@@ -150,7 +150,7 @@ def kostal_parse_data( data ) :
 		kostal.set('/Ac/L3/Voltage', (data['VC']))
 		kostal.set('/Ac/L3/Power', (data['PC']))
 
-		kostal.set('/Ac/Energy/Forward', (data['EFAT']))
+		kostal.set('/Ac/Energy/Forward', (data['EFAT']), 2)
 
 		powertotal = data['PT']
 		print("++++++++++")
@@ -158,7 +158,7 @@ def kostal_parse_data( data ) :
 		print("POWER Phase B: " + str(data['PB']) + "W")
 		print("POWER Phase C: " + str(data['PC']) + "W")
 		print("POWER Total: " + str(data['PT']) + "W")
-		print("ENERGY Total: " + str(round(data['EFAT'], 0)) + "kWh")
+		print("ENERGY Total: " + str(round(data['EFAT'], 2)) + "kWh")
 		#print("Time: " + str(data['TIME']) + "ms")
 		print("KOSTAL Status: " + str(data['STATUS']))
 
