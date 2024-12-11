@@ -7,9 +7,9 @@ import requests
 from requests.auth import HTTPBasicAuth
 import json
 try:
-	from ConfigParser import SafeConfigParser
+	from configparser import ConfigParser
 except:
-	from configparser import SafeConfigParser
+	from configparser import ConfigParser
 from kostal_inverter import KostalInverter
 
 from dbus.mainloop.glib import DBusGMainLoop
@@ -57,7 +57,7 @@ class Kostal:
 	version = 1
 	instance = 50
 	max_retries = 10
-	inverter_name = 'Kostal_pico5_5'
+	inverter_name = 'Kostal_pico5_5' 
 
 global demo
 demo = 0
@@ -79,7 +79,7 @@ def push_statistics() :
 
 
 def read_settings() :
-	parser = SafeConfigParser()
+	parser = ConfigParser()
 	cfgname = 'kostal.ini'
 	if len(sys.argv) > 1:
 		cfgname = str(sys.argv[1])
