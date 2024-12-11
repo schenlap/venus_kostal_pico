@@ -1,0 +1,1 @@
+kill $(pgrep -f "python ./kostal.py")

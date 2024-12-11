@@ -7,9 +7,9 @@ import requests
 from requests.auth import HTTPBasicAuth
 import json
 try:
-	from ConfigParser import SafeConfigParser
+	from ConfigParser import ConfigParser
 except:
-	from configparser import SafeConfigParser
+	from configparser import ConfigParser
 from kostal_inverter import KostalInverter
 
 from dbus.mainloop.glib import DBusGMainLoop
@@ -80,7 +80,7 @@ def push_statistics() :
 
 
 def read_settings() :
-	parser = SafeConfigParser()
+	parser = ConfigParser()
 	cfgname = 'kostal.ini'
 	if len(sys.argv) > 1:
 		cfgname = str(sys.argv[1])
@@ -150,7 +150,7 @@ def kostal_parse_data( data ) :
 		kostal.set('/Ac/L3/Voltage', (data['VC']))
 		kostal.set('/Ac/L3/Power', (data['PC']))
 
-		kostal.set('/Ac/Energy/Forward', (data['EFAT']))
+		kostal.set('/Ac/Energy/Forward', (data['EFAT']), 2)
 
 		powertotal = data['PT']
 		print("++++++++++")
@@ -315,7 +315,7 @@ def kostal_v3_to_v1_json(js):
 	data['PB'] = round( float(js['dxsEntries'][4]['value']), 1)
 	data['VC'] = round( float(js['dxsEntries'][5]['value']), 1)
 	data['PC'] = round( float(js['dxsEntries'][6]['value']), 1)
-	data['EFAT'] = round( float(js['dxsEntries'][7]['value']), 3)
+	data['EFAT'] = round( float(js['dxsEntries'][7]['value']) / 1000, 3) # as produced power per day has to convered from Wh to kWh
 	data['STATUS'] = js['dxsEntries'][8]['value']
 	data['IA'] = 0.0
 	data['IB'] = 0.0
@@ -398,7 +398,7 @@ def kostal_read_data() :
 					print("version2")
 					response = requests.get( Kostal.ip + '/measurements.xml', verify=False, timeout=10)
 				elif Kostal.version == 3:
-					response = requests.get( Kostal.ip +  '/api/dxs.json?dxsEntries=67109120&dxsEntries=67109378&dxsEntries=67109379&dxsEntries=67109634&dxsEntries=67109635&dxsEntries=67109890&dxsEntries=67109891&dxsEntries=251658753&dxsEntries=16780032', verify=False, timeout=10)
+					response = requests.get( Kostal.ip +  '/api/dxs.json?dxsEntries=67109120&dxsEntries=67109378&dxsEntries=67109379&dxsEntries=67109634&dxsEntries=67109635&dxsEntries=67109890&dxsEntries=67109891&dxsEntries=251658754&dxsEntries=16780032', verify=False, timeout=10) # 192.168.178.51/api/dxs.json?dxsEntries=251658754 gets the prouced power of the day
 				elif Kostal.version == 80: # evcc
 					response = requests.get( Kostal.ip +  '/api/state', verify=False, timeout=10)
 				else:
@@ -482,7 +482,7 @@ def kostal_update_cyclic(run_event) :
 			kostal.set('/Ac/Power', None)
 			kostal.set('/Ac/Current', None)
 			kostal.set('/Ac/Voltage', None)
-			kostal.set('/Ac/Energy/Forward', None)
+			kostal.set('/Ac/Energy/Forward', 2)
 
 		if dev_state == DevState.WaitForDevice:
 			if kostal_read_status(init=1) == 0:
