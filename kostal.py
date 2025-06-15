@@ -9,7 +9,7 @@ import json
 try:
 	from ConfigParser import SafeConfigParser
 except:
-	from configparser import SafeConfigParser
+	from configparser import ConfigParser
 from kostal_inverter import KostalInverter
 
 from dbus.mainloop.glib import DBusGMainLoop
@@ -80,7 +80,7 @@ def push_statistics() :
 
 
 def read_settings() :
-	parser = SafeConfigParser()
+	parser = ConfigParser()
 	cfgname = 'kostal.ini'
 	if len(sys.argv) > 1:
 		cfgname = str(sys.argv[1])
@@ -220,22 +220,22 @@ def kostal_htmltable_to_json( htmltext ) :
 		linenumber = 1
 		for line in htmltext.split("\n"):
 			if (linenumber == 46):
-				data['PT'] = int((re.findall('\d+', line))[0]);
+				data['PT'] = int((re.findall(r'\d+', line))[0]);
 			if (linenumber == 128):
-				data['PA'] = int((re.findall('\d+', line))[0]);
+				data['PA'] = int((re.findall(r'\d+', line))[0]);
 			if (linenumber == 114):
-				data['VA'] = int((re.findall('\d+', line))[0]);
+				data['VA'] = int((re.findall(r'\d+', line))[0]);
 			if (linenumber == 167):
-				data['PB'] = int((re.findall('\d+', line))[0]);
+				data['PB'] = int((re.findall(r'\d+', line))[0]);
 			if (linenumber == 153):
-				print (re.findall('\d+', line))
-				data['VB'] = int((re.findall('\d+', line))[0]);
+				print (re.findall(r'\d+', line))
+				data['VB'] = int((re.findall(r'\d+', line))[0]);
 			if (linenumber == 208):
-				data['PC'] = int((re.findall('\d+', line))[0]);
+				data['PC'] = int((re.findall(r'\d+', line))[0]);
 			if (linenumber == 193):
-				data['VC'] = int((re.findall('\d+', line))[0]);
+				data['VC'] = int((re.findall(r'\d+', line))[0]);
 			if (linenumber == 51):
-				data['EFAT'] = int((re.findall('\d+', line))[0]);
+				data['EFAT'] = int((re.findall(r'\d+', line))[0]);
 				energy = data['EFAT']
 			if (linenumber == 74):
 				if line.endswith('</td>'):
