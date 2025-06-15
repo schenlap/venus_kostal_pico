@@ -338,7 +338,11 @@ def kostal_v3_to_v1_json(js):
 
 def evcc_to_v1_json(js):
 	global energy
-	power = js['result']['pvPower']
+	try:
+		power = js['result']['pvPower']
+	except:
+		print(f"unknown data format, pvPower not found")
+		power = 0
 	print(f"pvpower: {power}")
 
 	energy = energy + power * kostal.get('/Mgmt/intervall') / 3600 / 1000 # kWh
