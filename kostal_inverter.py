@@ -43,6 +43,7 @@ class KostalInverter:
         self.dbusservice.add_path('/ProductName', product)
         self.dbusservice.add_path('/FirmwareVersion', firmwarev)
         self.dbusservice.add_path('/Serial', serial)
+        self.dbusservice.add_path('/CustomName', dev)
         self.dbusservice.add_path('/Connected', 1, writeable=True)
         self.dbusservice.add_path('/ErrorCode', '(0) No Error')
         self.dbusservice.add_path('/Position', position)
