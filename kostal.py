@@ -234,8 +234,8 @@ def kostal_htmltable_to_json( htmltext ) :
 				data['PC'] = int((re.findall(r'\d+', line))[0]);
 			if (linenumber == 193):
 				data['VC'] = int((re.findall(r'\d+', line))[0]);
-			if (linenumber == 51):
-				data['EFAT'] = int((re.findall(r'\d+', line))[0]);
+			if (linenumber == 65):
+				data['EFAT'] = float((re.findall('[0-9]+[.][0-9]+', line))[0]);
 				energy = data['EFAT']
 			if (linenumber == 74):
 				if line.endswith('</td>'):
