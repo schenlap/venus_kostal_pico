@@ -59,6 +59,7 @@ class Kostal:
 	instance = 50
 	max_retries = 10
 	inverter_name = 'Kostal_pico5_5'
+	position = 0
 
 global demo
 demo = 0
@@ -126,7 +127,6 @@ def kostal_parse_data( data ) :
 
 	# read same variables only the first time
 	if kostal_is_init == 0:
-		#kostal.set('/ProductName', str(jsonstr['hardware']))
 		kostal_is_init = 1
 
 	time_ms = int(round(time.time() * 1000))
@@ -150,22 +150,36 @@ def kostal_parse_data( data ) :
 		kostal.set('/Ac/L3/Voltage', (data['VC']))
 		kostal.set('/Ac/L3/Power', (data['PC']))
 
-		kostal.set('/Ac/Energy/Forward', (data['EFAT']), 2)
+		kostal.set('/Ac/Energy/Forward', data['EFAT'], 2)
 
-		powertotal = data['PT']
+		# currently only v2 devices support this
+		if 'PMAX' in data:
+			kostal.set('/Ac/MaxPower', data['PMAX'])
+		if 'SERIAL' in data:
+			kostal.set('/Serial', str(data['SERIAL']))
+		
+		statusCode = 0
+		status = data.get('STATUS', '').lower()
+		if status == 'running':
+			statusCode = 7
+		elif status == 'standby':
+			statusCode = 8
+		else:
+			statusCode = 10
+		
+		kostal.set('/StatusCode', int(statusCode))		
+
 		print("++++++++++")
 		print("POWER Phase A: " + str(data['PA']) + "W")
 		print("POWER Phase B: " + str(data['PB']) + "W")
 		print("POWER Phase C: " + str(data['PC']) + "W")
 		print("POWER Total: " + str(data['PT']) + "W")
-		print("ENERGY Total: " + str(round(data['EFAT'], 2)) + "kWh")
-		#print("Time: " + str(data['TIME']) + "ms")
+		print("ENERGY Total: " + str(data['EFAT']) + "kWh")
 		print("KOSTAL Status: " + str(data['STATUS']))
 
 def kostal_get_table_data_float(tree, xstring):
 	return float(kostal_get_table_data(tree, xstring))
 
-		#Kostal.stats.parse_error += 1
 def kostal_get_table_data(tree, xstring):
 	s = tree.xpath(xstring)[0].text_content()
 	s = s.strip().replace(" ", "")
@@ -279,6 +293,12 @@ def kostal_v2_to_v1_json(xml):
 	meas = el.findall('.//Measurement[@Type="AC_Power"]')
 	
 	data = {}
+
+	data['EFAT'] = float(el.xpath('//Yield[@Type="Produced"][@Slot="Total"]/YieldValue/@Value')[0]) / 1000
+	# these two would be required once only during init, but would need more code refactoring
+	data['PMAX'] = float(el.xpath('//Device/@NominalPower')[0])
+	data['SERIAL'] = el.xpath('//Device/@Serial')[0]
+
 	try:
 		meas = el.findall('.//Measurement[@Type="AC_Power"]')
 		data['PA'] = round(float(meas[0].attrib.get('Value')), 1)
@@ -286,6 +306,7 @@ def kostal_v2_to_v1_json(xml):
 		data['VA'] = round(float(meas[0].attrib.get('Value')), 1)
 		meas = el.findall('.//Measurement[@Type="AC_Current"]')
 		data['IA'] = round(float(meas[0].attrib.get('Value')), 1)
+		
 		data['STATUS'] = 'running'
 	except:
 		data['PA'] = 0
@@ -298,7 +319,6 @@ def kostal_v2_to_v1_json(xml):
 	data['PT'] = data['PA']
 	data['VB'] = 0
 	data['VC'] = 0
-	data['EFAT'] = 0
 	data['IB'] = 0
 	data['IC'] = 0
 	data['IN0'] = 0
@@ -400,7 +420,7 @@ def kostal_read_data() :
 					response = requests.get( Kostal.ip, verify=False, timeout=10)
 				elif Kostal.version == 2:
 					print("version2")
-					response = requests.get( Kostal.ip + '/measurements.xml', verify=False, timeout=10)
+					response = requests.get( Kostal.ip + '/all.xml', verify=False, timeout=10)
 				elif Kostal.version == 3:
 					response = requests.get( Kostal.ip +  '/api/dxs.json?dxsEntries=67109120&dxsEntries=67109378&dxsEntries=67109379&dxsEntries=67109634&dxsEntries=67109635&dxsEntries=67109890&dxsEntries=67109891&dxsEntries=251658753&dxsEntries=16780032', verify=False, timeout=10)
 				elif Kostal.version == 80: # evcc
