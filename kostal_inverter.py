@@ -47,6 +47,7 @@ class KostalInverter:
         self.dbusservice.add_path('/Connected', 1, writeable=True)
         self.dbusservice.add_path('/ErrorCode', '(0) No Error')
         self.dbusservice.add_path('/Position', position)
+        self.dbusservice.add_path('/StatusCode', 0)
 
         _kwh = lambda p, v: (str(v) + 'KWh')
         _a = lambda p, v: (str(v) + 'A')
@@ -71,6 +72,7 @@ class KostalInverter:
         self.dbusservice.add_path('/Ac/Power', None, gettextcallback=_w)
         self.dbusservice.add_path('/Ac/Current', None, gettextcallback=_a)
         self.dbusservice.add_path('/Ac/Voltage', None, gettextcallback=_v)
+        self.dbusservice.add_path('/Ac/MaxPower', None, gettextcallback=_w)
 
         self.dbusservice.add_path('/stats/connection_ok', 0, gettextcallback=_x, writeable=True)
         self.dbusservice.add_path('/stats/connection_error', 0, gettextcallback=_x, writeable=True)
@@ -101,6 +103,7 @@ class KostalInverter:
         self.set('/Ac/L2/Power', [])
         self.set('/Ac/L3/Power', [])
         self.set('/Ac/Power', [])
+        self.set('/Ac/Energy/Forward', [])
 
     def set(self, name, value, round_digits=0):
         logging.debug(f"Setze {name} auf {value}")
