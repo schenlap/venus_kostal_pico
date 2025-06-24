@@ -152,8 +152,11 @@ def kostal_parse_data( data ) :
 
 		kostal.set('/Ac/Energy/Forward', data['EFAT'], 2)
 
-		kostal.set('/Ac/MaxPower', data['PMAX'])
-		kostal.set('/Serial', str(data['SERIAL']))
+		# currently only v2 devices support this
+		if 'PMAX' in data:
+			kostal.set('/Ac/MaxPower', data['PMAX'])
+		if 'SERIAL' in data:
+			kostal.set('/Serial', str(data['SERIAL']))
 		
 		statusCode = 0
 		status = data.get('STATUS', '').lower()
